@@ -2,6 +2,7 @@ import { Redis } from "@upstash/redis";
 
 import { config } from "@/lib/config";
 import { logger } from "@/lib/logger/logger";
+import { ApiError } from "@/lib/utils/errors";
 
 type CacheRecord = {
   value: string;
@@ -36,7 +37,12 @@ function handleRedisFailure(error: unknown) {
   const reason = getErrorMessage(error);
 
   if (config.isProduction) {
-    throw error;
+    throw new ApiError(
+      503,
+      "redis_unavailable",
+      "Redis is not configured correctly for cache or rate limiting",
+      { reason }
+    );
   }
 
   redisDisabledReason = reason;
