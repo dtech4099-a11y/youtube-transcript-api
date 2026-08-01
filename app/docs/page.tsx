@@ -1,5 +1,8 @@
 export default function DocsPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://your-api-domain.com";
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://your-api-domain.com").replace(
+    /\/+$/,
+    ""
+  );
 
   return (
     <main className="docs-page">
