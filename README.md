@@ -149,4 +149,5 @@ Common status codes:
 - The transcript endpoint uses the `youtube-transcript` package, which relies on publicly available YouTube transcript data.
 - Private videos, disabled captions, unavailable captions, and some region-restricted videos may not return transcripts.
 - Metadata is retrieved from YouTube oEmbed plus the public watch page description meta tag.
+
 # youtube-trascript-api

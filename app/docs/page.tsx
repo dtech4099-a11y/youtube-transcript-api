@@ -1,4 +1,6 @@
 export default function DocsPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://your-api-domain.com";
+
   return (
     <main className="docs-page">
       <header className="docs-header">
@@ -31,8 +33,8 @@ export default function DocsPage() {
             }
           </pre>
           <code className="command">
-            Invoke-RestMethod &quot;http://localhost:3001/api/transcript?id=dQw4w9WgXcQ&quot;
-            -Headers @{"{"} &quot;x-api-key&quot; = &quot;dev-api-key-change-me&quot; {"}"}
+            Invoke-RestMethod &quot;{baseUrl}/api/transcript?id=dQw4w9WgXcQ&quot; -Headers @{"{"}{" "}
+            &quot;x-api-key&quot; = &quot;YOUR_API_KEY&quot; {"}"}
           </code>
         </div>
 
@@ -46,8 +48,8 @@ export default function DocsPage() {
             {'{\n  "title": "",\n  "description": "",\n  "thumbnail": "",\n  "channel": ""\n}'}
           </pre>
           <code className="command">
-            Invoke-RestMethod &quot;http://localhost:3001/api/metadata?id=dQw4w9WgXcQ&quot; -Headers
-            @{"{"} &quot;x-api-key&quot; = &quot;dev-api-key-change-me&quot; {"}"}
+            Invoke-RestMethod &quot;{baseUrl}/api/metadata?id=dQw4w9WgXcQ&quot; -Headers @{"{"}{" "}
+            &quot;x-api-key&quot; = &quot;YOUR_API_KEY&quot; {"}"}
           </code>
         </div>
       </section>
