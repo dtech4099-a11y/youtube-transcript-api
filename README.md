@@ -8,9 +8,11 @@ Production-ready REST API for extracting YouTube subtitles/transcripts and basic
 | ------ | ------------------------------------- | ---- | ------------------------------------------------ |
 | GET    | `/api/health`                         | No   | Health check                                     |
 | GET    | `/api/transcript?id=VIDEO_ID&lang=en` | Yes  | Fetch transcript segments                        |
+| GET    | `/api/languages?id=VIDEO_ID`          | Yes  | Check common transcript language availability    |
 | GET    | `/api/metadata?id=VIDEO_ID`           | Yes  | Fetch title, description, thumbnail, and channel |
-| GET    | `/api/openapi`                        | No   | OpenAPI 3.1 JSON                                 |
-| GET    | `/docs`                               | No   | Swagger UI                                       |
+| POST   | `/api/batch`                          | Yes  | Fetch transcripts for up to 10 videos            |
+| GET    | `/api/openapi`                        | No   | OpenAPI 3.0 JSON                                 |
+| GET    | `/docs`                               | No   | API documentation                                |
 
 Protected endpoints accept either:
 
@@ -118,9 +120,13 @@ Vercel will detect Next.js automatically. `vercel.json` configures function dura
 3. Add endpoints:
    - `GET /api/health`
    - `GET /api/transcript`
+   - `GET /api/languages`
    - `GET /api/metadata`
+   - `POST /api/batch`
 4. Configure RapidAPI to send `x-rapidapi-proxy-secret` and set the same value as `RAPIDAPI_PROXY_SECRET` in Vercel.
 5. Do not expose your internal `API_KEYS` through RapidAPI. Let RapidAPI authenticate consumers and forward only the proxy secret to this service.
+
+You can import `openapi.yaml` into RapidAPI as the starting API specification.
 
 ## Error Shape
 

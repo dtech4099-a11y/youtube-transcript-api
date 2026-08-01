@@ -36,6 +36,34 @@ export function parseVideoRequest(searchParams: URLSearchParams) {
   return result.data;
 }
 
+export const batchRequestSchema = z.object({
+  videos: z
+    .array(videoIdSchema)
+    .min(1, "Provide at least one video id")
+    .max(10, "Batch requests support up to 10 videos"),
+  lang: languageSchema
+});
+
+export type BatchRequest = z.infer<typeof batchRequestSchema>;
+
+export async function parseJsonBody<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    throw new ApiError(400, "invalid_json", "Request body must be valid JSON");
+  }
+
+  const result = schema.safeParse(body);
+
+  if (!result.success) {
+    throw new ApiError(400, "invalid_request", "Invalid request body", result.error.flatten());
+  }
+
+  return result.data;
+}
+
 export function parseDurationMs(value: string): number {
   const match = value.match(/^(\d+)(ms|s|m|h|d)$/);
 

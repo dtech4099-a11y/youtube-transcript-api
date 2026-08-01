@@ -12,12 +12,19 @@ export default function DocsPage() {
   -H "x-api-key: ${apiKeyPlaceholder}"`;
   const transcriptCurl = `curl "${baseUrl}/api/transcript?id=dQw4w9WgXcQ" \\
   -H "x-api-key: ${apiKeyPlaceholder}"`;
+  const languagesCurl = `curl "${baseUrl}/api/languages?id=VIDEO_ID" \\
+  -H "x-api-key: ${apiKeyPlaceholder}"`;
   const metadataBasePowerShell = `Invoke-RestMethod "${baseUrl}/api/metadata?id=VIDEO_ID" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" }`;
   const metadataPowerShell = `Invoke-RestMethod "${baseUrl}/api/metadata?id=dQw4w9WgXcQ" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" }`;
   const metadataBaseCurl = `curl "${baseUrl}/api/metadata?id=VIDEO_ID" \\
   -H "x-api-key: ${apiKeyPlaceholder}"`;
   const metadataCurl = `curl "${baseUrl}/api/metadata?id=dQw4w9WgXcQ" \\
   -H "x-api-key: ${apiKeyPlaceholder}"`;
+  const batchPowerShell = `Invoke-RestMethod "${baseUrl}/api/batch" -Method POST -ContentType "application/json" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" } -Body '{ "videos": ["dQw4w9WgXcQ", "JbhBdOfMEPs"], "lang": "en" }'`;
+  const batchCurl = `curl -X POST "${baseUrl}/api/batch" \\
+  -H "content-type: application/json" \\
+  -H "x-api-key: ${apiKeyPlaceholder}" \\
+  -d '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en"}'`;
 
   return (
     <main className="docs-page">
@@ -79,6 +86,10 @@ export default function DocsPage() {
 
         <section id="endpoints" className="section-anchor" aria-label="Endpoints" />
         <div className="endpoint">
+          <div className="endpoint-heading">
+            <h2>Health Check</h2>
+            <p>Verify that the API deployment is reachable.</p>
+          </div>
           <div className="endpoint-title">
             <div>
               <span className="method">GET</span>
@@ -87,11 +98,16 @@ export default function DocsPage() {
             <span className="auth-badge public">Public</span>
           </div>
           <p>Public health-check endpoint.</p>
+          <h3 className="sample-label">Sample response</h3>
           <pre>{'{\n  "status": "ok"\n}'}</pre>
           <a href="/api/health">Test health</a>
         </div>
 
         <div className="endpoint">
+          <div className="endpoint-heading">
+            <h2>Get Transcript</h2>
+            <p>Retrieve caption segments with text and timing offsets for a YouTube video.</p>
+          </div>
           <div className="endpoint-title">
             <div>
               <span className="method">GET</span>
@@ -143,6 +159,7 @@ export default function DocsPage() {
               </tbody>
             </table>
           </div>
+          <h3 className="sample-label">Sample response</h3>
           <pre>
             {
               '{\n  "success": true,\n  "videoId": "dQw4w9WgXcQ",\n  "language": "en",\n  "transcript": [\n    {\n      "text": "Hello",\n      "offset": 1234,\n      "duration": 567\n    }\n  ]\n}'
@@ -160,6 +177,68 @@ export default function DocsPage() {
         </div>
 
         <div className="endpoint">
+          <div className="endpoint-heading">
+            <h2>Get Languages</h2>
+            <p>Check common transcript language availability for a YouTube video.</p>
+          </div>
+          <div className="endpoint-title">
+            <div>
+              <span className="method">GET</span>
+              <code>/api/languages?id=VIDEO_ID</code>
+            </div>
+            <span className="auth-badge">API key required</span>
+          </div>
+          <p>
+            Returns a list of supported language codes and whether each language appears available.
+            Requires <code>x-api-key</code>.
+          </p>
+          <div className="endpoint-lines">
+            <div>
+              <span>Base endpoint</span>
+              <code>/api/languages?id=VIDEO_ID</code>
+            </div>
+            <div>
+              <span>Example</span>
+              <code>/api/languages?id=dQw4w9WgXcQ</code>
+            </div>
+          </div>
+          <div className="params">
+            <h3>Parameters</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <code>id</code>
+                  </td>
+                  <td>Yes</td>
+                  <td>11-character YouTube video ID.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3 className="sample-label">Sample response</h3>
+          <pre>
+            {
+              '{\n  "success": true,\n  "videoId": "dQw4w9WgXcQ",\n  "languages": [\n    {\n      "code": "en",\n      "name": "English",\n      "available": true\n    }\n  ]\n}'
+            }
+          </pre>
+          <div className="commands-grid">
+            <CopyCommand command={languagesCurl} label="Linux/macOS curl base command" />
+          </div>
+        </div>
+
+        <div className="endpoint">
+          <div className="endpoint-heading">
+            <h2>Get Metadata</h2>
+            <p>Retrieve public title, description, thumbnail, and channel details.</p>
+          </div>
           <div className="endpoint-title">
             <div>
               <span className="method">GET</span>
@@ -202,6 +281,7 @@ export default function DocsPage() {
               </tbody>
             </table>
           </div>
+          <h3 className="sample-label">Sample response</h3>
           <pre>
             {'{\n  "title": "",\n  "description": "",\n  "thumbnail": "",\n  "channel": ""\n}'}
           </pre>
@@ -212,10 +292,39 @@ export default function DocsPage() {
             <CopyCommand command={metadataCurl} label="Linux/macOS curl example" />
           </div>
         </div>
+        <div className="endpoint">
+          <div className="endpoint-heading">
+            <h2>Batch Transcripts</h2>
+            <p>Fetch transcript results for multiple videos in one request.</p>
+          </div>
+          <div className="endpoint-title">
+            <div>
+              <span className="method post">POST</span>
+              <code>/api/batch</code>
+            </div>
+            <span className="auth-badge">API key required</span>
+          </div>
+          <p>
+            Accepts up to 10 video IDs and returns per-video transcript results. Requires{" "}
+            <code>x-api-key</code>.
+          </p>
+          <h3 className="sample-label">Request body</h3>
+          <pre>{'{\n  "videos": ["dQw4w9WgXcQ", "JbhBdOfMEPs"],\n  "lang": "en"\n}'}</pre>
+          <h3 className="sample-label">Sample response</h3>
+          <pre>
+            {
+              '{\n  "success": true,\n  "count": 2,\n  "results": [\n    {\n      "success": true,\n      "videoId": "dQw4w9WgXcQ",\n      "language": "en",\n      "transcript": []\n    }\n  ]\n}'
+            }
+          </pre>
+          <div className="commands-grid">
+            <CopyCommand command={batchPowerShell} label="Windows PowerShell example" />
+            <CopyCommand command={batchCurl} label="Linux/macOS curl example" />
+          </div>
+        </div>
         <section className="info-card" id="errors" aria-labelledby="errors-title">
           <h2 id="errors-title">Error examples</h2>
           <div className="error-grid">
-            <div>
+            <div className="error-card">
               <h3>Invalid API key</h3>
               <pre>
                 {
@@ -223,7 +332,7 @@ export default function DocsPage() {
                 }
               </pre>
             </div>
-            <div>
+            <div className="error-card">
               <h3>Transcript not found</h3>
               <pre>
                 {
@@ -231,7 +340,7 @@ export default function DocsPage() {
                 }
               </pre>
             </div>
-            <div>
+            <div className="error-card">
               <h3>Rate limit exceeded</h3>
               <pre>
                 {

@@ -1,0 +1,121 @@
+openapi: 3.0.3
+info:
+  title: YouTube Transcript API
+  version: 1.0.0
+  description: REST API for retrieving YouTube transcripts, language availability, metadata, and batch transcripts.
+servers:
+  - url: https://youtube-trascript-api.vercel.app
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    BearerAuth:
+      type: http
+      scheme: bearer
+    RapidApiProxySecret:
+      type: apiKey
+      in: header
+      name: x-rapidapi-proxy-secret
+  schemas:
+    TranscriptItem:
+      type: object
+      required: [text, offset, duration]
+      properties:
+        text:
+          type: string
+        offset:
+          type: number
+        duration:
+          type: number
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+  /api/transcript:
+    get:
+      summary: Get transcript
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-zA-Z0-9_-]{11}$"
+          example: dQw4w9WgXcQ
+        - name: lang
+          in: query
+          required: false
+          schema:
+            type: string
+          example: en
+      responses:
+        "200":
+          description: Transcript response
+  /api/languages:
+    get:
+      summary: Get available transcript languages
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-zA-Z0-9_-]{11}$"
+      responses:
+        "200":
+          description: Language availability response
+  /api/metadata:
+    get:
+      summary: Get video metadata
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-zA-Z0-9_-]{11}$"
+      responses:
+        "200":
+          description: Metadata response
+  /api/batch:
+    post:
+      summary: Fetch transcripts for multiple videos
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [videos]
+              properties:
+                videos:
+                  type: array
+                  minItems: 1
+                  maxItems: 10
+                  items:
+                    type: string
+                    pattern: "^[a-zA-Z0-9_-]{11}$"
+                lang:
+                  type: string
+            example:
+              videos:
+                - dQw4w9WgXcQ
+                - JbhBdOfMEPs
+              lang: en
+      responses:
+        "200":
+          description: Batch transcript response
