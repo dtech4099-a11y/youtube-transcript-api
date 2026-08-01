@@ -128,6 +128,17 @@ Vercel will detect Next.js automatically. `vercel.json` configures function dura
 
 You can import `openapi.yaml` into RapidAPI as the starting API specification.
 
+RapidAPI Access Control secret header:
+
+| Field       | Value                                                |
+| ----------- | ---------------------------------------------------- |
+| Name        | `x-rapidapi-proxy-secret`                            |
+| Value       | same value as Vercel `RAPIDAPI_PROXY_SECRET`         |
+| Type        | `Header`                                             |
+| Description | `Backend proxy secret for Vercel API authentication` |
+
+RapidAPI customers should not see or send your internal `x-api-key`. They should call RapidAPI with `x-rapidapi-key` and `x-rapidapi-host`; RapidAPI forwards `x-rapidapi-proxy-secret` privately to this backend.
+
 ## Error Shape
 
 ```json
