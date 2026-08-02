@@ -1,71 +1,123 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+import { PageShell } from "@/app/components/PageShell";
+import { SectionHeader } from "@/app/components/SectionHeader";
+import { endpoints, faqs, features, pricingPlans, siteConfig } from "@/app/components/site-data";
+
+export const metadata: Metadata = {
+  title: "YouTube Transcript API | Fast Captions, Metadata, and Language Detection",
+  description: siteConfig.description,
+  alternates: { canonical: siteConfig.website }
+};
 
 export default function HomePage() {
   return (
-    <main className="landing-page">
-      <section className="landing-hero">
-        <div>
-          <p className="eyebrow">youtube-transcript-api</p>
-          <h1>YouTube transcripts through one production-ready API.</h1>
-          <p>
-            Fetch transcripts, language availability, metadata, and batch transcript results from
-            YouTube videos with clean REST endpoints built for Vercel and RapidAPI.
-          </p>
-          <div className="hero-actions">
-            <Link href="/docs">View documentation</Link>
-            <a href="/api/health">Check API status</a>
+    <PageShell>
+      <main>
+        <section className="hero-section">
+          <div className="hero-copy-block">
+            <p className="eyebrow">Production-ready REST API</p>
+            <h1>YouTube Transcript API</h1>
+            <p>{siteConfig.description}</p>
+            <div className="hero-actions">
+              <Link href="/docs">View documentation</Link>
+              <Link href="/pricing">Get started</Link>
+            </div>
           </div>
-        </div>
-        <pre>
-          {
-            'curl "https://youtube-trascript-api.vercel.app/api/transcript?id=VIDEO_ID" \\\n  -H "x-api-key: YOUR_API_KEY"'
-          }
-        </pre>
-      </section>
+          <div className="hero-code-card" aria-label="Example API request">
+            <div className="window-dots">
+              <span />
+              <span />
+              <span />
+            </div>
+            <pre>{`curl --request GET \\
+  --url '${siteConfig.website}/api/transcript?id=dQw4w9WgXcQ&lang=en' \\
+  --header 'x-api-key: YOUR_API_KEY'`}</pre>
+          </div>
+        </section>
 
-      <section className="landing-section">
-        <h2>Features</h2>
-        <div className="feature-grid">
-          <div>
-            <h3>Transcript extraction</h3>
-            <p>Retrieve timed caption segments with text, offset, and duration fields.</p>
+        <section className="page-section">
+          <SectionHeader
+            eyebrow="Features"
+            title="Everything needed for transcript-powered products"
+            description="Build AI assistants, summarizers, search tools, SEO workflows, educational platforms, and media automation with reliable JSON endpoints."
+          />
+          <div className="card-grid feature-card-grid">
+            {features.map((feature) => (
+              <article className="feature-card" key={feature}>
+                <span aria-hidden="true">✦</span>
+                <h3>{feature}</h3>
+                <p>Clean API behavior, structured responses, and production-focused defaults.</p>
+              </article>
+            ))}
           </div>
-          <div>
-            <h3>Metadata endpoint</h3>
-            <p>Fetch title, description, thumbnail, and channel information.</p>
-          </div>
-          <div>
-            <h3>Batch support</h3>
-            <p>Request transcripts for up to 10 videos in one API call.</p>
-          </div>
-          <div>
-            <h3>Production controls</h3>
-            <p>API key authentication, Redis caching, rate limiting, and structured errors.</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="landing-section">
-        <h2>Pricing</h2>
-        <p>
-          Pricing is managed through RapidAPI plans. Start with a free or trial tier, then add paid
-          quotas based on request volume.
-        </p>
-      </section>
+        <section className="page-section alt-section">
+          <SectionHeader
+            eyebrow="API endpoints"
+            title="Simple REST endpoints"
+            description="Use one consistent JSON API for transcripts, video metadata, language checks, and batch processing."
+          />
+          <div className="endpoint-grid">
+            {endpoints.map((endpoint) => (
+              <article className="endpoint-pill" key={endpoint.path}>
+                <span className={endpoint.method === "POST" ? "method post" : "method"}>
+                  {endpoint.method}
+                </span>
+                <code>{endpoint.path}</code>
+                <p>{endpoint.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
-      <section className="landing-section">
-        <h2>Documentation</h2>
-        <p>
-          Use the public docs for examples, parameters, error responses, and OpenAPI import links.
-        </p>
-        <Link href="/docs">Open API docs</Link>
-      </section>
+        <section className="page-section">
+          <SectionHeader
+            eyebrow="Pricing"
+            title="Plans for testing and production"
+            description="Start small, then scale usage as your application grows."
+          />
+          <div className="pricing-grid">
+            {pricingPlans.map((plan) => (
+              <article
+                className={plan.featured ? "pricing-card featured" : "pricing-card"}
+                key={plan.name}
+              >
+                <h3>{plan.name}</h3>
+                <p className="price">{plan.price}</p>
+                <ul>
+                  <li>{plan.requests}</li>
+                  <li>{plan.support}</li>
+                </ul>
+                <Link href="/pricing">View plan</Link>
+              </article>
+            ))}
+          </div>
+        </section>
 
-      <section className="landing-section">
-        <h2>Contact</h2>
-        <p>For access, support, or RapidAPI partnership setup, contact the API owner.</p>
-        <a href="mailto:support@example.com">support@example.com</a>
-      </section>
-    </main>
+        <section className="page-section alt-section">
+          <SectionHeader eyebrow="FAQ" title="Common questions" />
+          <div className="faq-list">
+            {faqs.map((faq) => (
+              <article key={faq.question}>
+                <h3>{faq.question}</h3>
+                <p>{faq.answer}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="page-section contact-band">
+          <div>
+            <p className="eyebrow">Contact</p>
+            <h2>Need help integrating transcripts?</h2>
+            <p>Contact {siteConfig.company} for support, feature requests, or enterprise access.</p>
+          </div>
+          <Link href="/contact">Contact support</Link>
+        </section>
+      </main>
+    </PageShell>
   );
 }

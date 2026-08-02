@@ -1,360 +1,273 @@
+import type { Metadata } from "next";
+
 import { CopyCommand } from "@/app/docs/CopyCommand";
+import { PageShell } from "@/app/components/PageShell";
+import { SectionHeader } from "@/app/components/SectionHeader";
+import { siteConfig } from "@/app/components/site-data";
+
+export const metadata: Metadata = {
+  title: "API Documentation | YouTube Transcript API",
+  description:
+    "Request examples, response examples, authentication headers, and error codes for the YouTube Transcript API.",
+  alternates: { canonical: `${siteConfig.website}/docs` }
+};
+
+const vercelTranscriptCurl = `curl --request GET \\
+  --url '${siteConfig.website}/api/transcript?id=dQw4w9WgXcQ&lang=en' \\
+  --header 'x-api-key: YOUR_API_KEY'`;
+
+const vercelMetadataCurl = `curl --request GET \\
+  --url '${siteConfig.website}/api/metadata?id=dQw4w9WgXcQ' \\
+  --header 'x-api-key: YOUR_API_KEY'`;
+
+const vercelLanguagesCurl = `curl --request GET \\
+  --url '${siteConfig.website}/api/languages?id=dQw4w9WgXcQ' \\
+  --header 'x-api-key: YOUR_API_KEY'`;
+
+const vercelBatchCurl = `curl --request POST \\
+  --url '${siteConfig.website}/api/batch' \\
+  --header 'content-type: application/json' \\
+  --header 'x-api-key: YOUR_API_KEY' \\
+  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en"}'`;
+
+const rapidApiTranscriptCurl = `curl --request GET \\
+  --url '${siteConfig.rapidApiBaseUrl}/api/transcript?id=dQw4w9WgXcQ&lang=en' \\
+  --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
+  --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'`;
+
+const rapidApiMetadataCurl = `curl --request GET \\
+  --url '${siteConfig.rapidApiBaseUrl}/api/metadata?id=dQw4w9WgXcQ' \\
+  --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
+  --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'`;
+
+const rapidApiLanguagesCurl = `curl --request GET \\
+  --url '${siteConfig.rapidApiBaseUrl}/api/languages?id=dQw4w9WgXcQ' \\
+  --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
+  --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'`;
+
+const rapidApiBatchCurl = `curl --request POST \\
+  --url '${siteConfig.rapidApiBaseUrl}/api/batch' \\
+  --header 'content-type: application/json' \\
+  --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
+  --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY' \\
+  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en"}'`;
 
 export default function DocsPage() {
-  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://your-api-domain.com").replace(
-    /\/+$/,
-    ""
-  );
-  const apiKeyPlaceholder = "YOUR_API_KEY";
-  const transcriptBasePowerShell = `Invoke-RestMethod "${baseUrl}/api/transcript?id=VIDEO_ID&lang=en" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" }`;
-  const transcriptPowerShell = `Invoke-RestMethod "${baseUrl}/api/transcript?id=dQw4w9WgXcQ" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" }`;
-  const transcriptBaseCurl = `curl "${baseUrl}/api/transcript?id=VIDEO_ID&lang=en" \\
-  -H "x-api-key: ${apiKeyPlaceholder}"`;
-  const transcriptCurl = `curl "${baseUrl}/api/transcript?id=dQw4w9WgXcQ" \\
-  -H "x-api-key: ${apiKeyPlaceholder}"`;
-  const languagesCurl = `curl "${baseUrl}/api/languages?id=VIDEO_ID" \\
-  -H "x-api-key: ${apiKeyPlaceholder}"`;
-  const metadataBasePowerShell = `Invoke-RestMethod "${baseUrl}/api/metadata?id=VIDEO_ID" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" }`;
-  const metadataPowerShell = `Invoke-RestMethod "${baseUrl}/api/metadata?id=dQw4w9WgXcQ" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" }`;
-  const metadataBaseCurl = `curl "${baseUrl}/api/metadata?id=VIDEO_ID" \\
-  -H "x-api-key: ${apiKeyPlaceholder}"`;
-  const metadataCurl = `curl "${baseUrl}/api/metadata?id=dQw4w9WgXcQ" \\
-  -H "x-api-key: ${apiKeyPlaceholder}"`;
-  const batchPowerShell = `Invoke-RestMethod "${baseUrl}/api/batch" -Method POST -ContentType "application/json" -Headers @{ "x-api-key" = "${apiKeyPlaceholder}" } -Body '{ "videos": ["dQw4w9WgXcQ", "JbhBdOfMEPs"], "lang": "en" }'`;
-  const batchCurl = `curl -X POST "${baseUrl}/api/batch" \\
-  -H "content-type: application/json" \\
-  -H "x-api-key: ${apiKeyPlaceholder}" \\
-  -d '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en"}'`;
-
   return (
-    <main className="docs-page">
-      <header className="docs-hero">
-        <div className="docs-hero-content">
-          <p className="eyebrow">youtube-transcript-api</p>
-          <h1>API Documentation</h1>
-          <p className="hero-copy">
-            Extract YouTube transcripts and metadata through simple REST endpoints with API key
-            authentication, Redis-backed rate limiting, and production-ready error responses.
+    <PageShell>
+      <main>
+        <section className="subpage-hero">
+          <p className="eyebrow">Documentation</p>
+          <h1>Complete API documentation</h1>
+          <p>
+            Request examples, response formats, authentication headers, parameters, and common error
+            responses for transcript-powered applications.
           </p>
-          <div className="hero-actions">
-            <a href="/api/health">Check health</a>
-            <a href="/api/openapi">OpenAPI JSON</a>
-          </div>
-        </div>
-        <div className="hero-panel" aria-label="API summary">
-          <div>
-            <span>Base URL</span>
-            <code>{baseUrl}</code>
-          </div>
-          <div>
-            <span>Authentication</span>
-            <code>x-api-key: YOUR_API_KEY</code>
-          </div>
-          <div>
-            <span>Response format</span>
-            <code>application/json</code>
-          </div>
-        </div>
-      </header>
-      <nav className="docs-tabs" aria-label="Documentation sections">
-        <a href="#endpoints">Endpoints</a>
-        <a href="#authentication">Authentication</a>
-        <a href="#errors">Errors</a>
-      </nav>
-      <section className="docs-content">
-        <section className="info-card" aria-labelledby="how-to-use">
-          <h2 id="how-to-use">How to use</h2>
-          <ol>
-            <li>
-              Choose an endpoint and replace <code>VIDEO_ID</code> with a YouTube video ID.
-            </li>
-            <li>
-              Send your API key with the <code>x-api-key</code> header.
-            </li>
-            <li>Handle unavailable transcripts with the documented error responses.</li>
-          </ol>
         </section>
 
-        <section className="info-card" id="authentication" aria-labelledby="authentication-title">
-          <h2 id="authentication-title">Authentication</h2>
-          <p>
-            Protected endpoints require an API key. Direct Vercel users send <code>x-api-key</code>.
-            RapidAPI customers should use RapidAPI headers instead.
-          </p>
-          <pre>{'{\n  "x-api-key": "YOUR_API_KEY"\n}'}</pre>
+        <section className="page-section">
+          <SectionHeader
+            eyebrow="Authentication"
+            title="API authentication"
+            description="Protected endpoints require authentication. Use x-api-key for direct API access, or RapidAPI headers when calling through the RapidAPI marketplace."
+          />
+          <div className="doc-grid">
+            <article className="doc-card">
+              <h3>Direct API access</h3>
+              <pre>{`Base URL: ${siteConfig.website}
+x-api-key: YOUR_API_KEY`}</pre>
+            </article>
+            <article className="doc-card">
+              <h3>RapidAPI marketplace access</h3>
+              <pre>{`Base URL: ${siteConfig.rapidApiBaseUrl}
+x-rapidapi-key: YOUR_RAPIDAPI_KEY
+x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
+            </article>
+          </div>
         </section>
 
-        <section id="endpoints" className="section-anchor" aria-label="Endpoints" />
-        <div className="endpoint">
-          <div className="endpoint-heading">
-            <h2>Health Check</h2>
-            <p>Verify that the API deployment is reachable.</p>
-          </div>
-          <div className="endpoint-title">
-            <div>
-              <span className="method">GET</span>
-              <code>/api/health</code>
-            </div>
-            <span className="auth-badge public">Public</span>
-          </div>
-          <p>Public health-check endpoint.</p>
-          <h3 className="sample-label">Sample response</h3>
-          <pre>{'{\n  "status": "ok"\n}'}</pre>
-          <a href="/api/health">Test health</a>
-        </div>
-
-        <div className="endpoint">
-          <div className="endpoint-heading">
-            <h2>Get Transcript</h2>
-            <p>Retrieve caption segments with text and timing offsets for a YouTube video.</p>
-          </div>
-          <div className="endpoint-title">
-            <div>
-              <span className="method">GET</span>
-              <code>/api/transcript?id=VIDEO_ID&amp;lang=en</code>
-            </div>
-            <span className="auth-badge">API key required</span>
-          </div>
-          <p>
-            Returns dynamic transcript segments for the requested YouTube video ID. Requires{" "}
-            <code>x-api-key</code>.
-          </p>
-          <div className="endpoint-lines">
-            <div>
-              <span>Base endpoint</span>
-              <code>/api/transcript?id=VIDEO_ID&amp;lang=en</code>
-            </div>
-            <div>
-              <span>Example</span>
-              <code>/api/transcript?id=dQw4w9WgXcQ&amp;lang=en</code>
-            </div>
-          </div>
-          <div className="params">
-            <h3>Parameters</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Required</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <code>id</code>
-                  </td>
-                  <td>Yes</td>
-                  <td>11-character YouTube video ID.</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>lang</code>
-                  </td>
-                  <td>No</td>
-                  <td>
-                    Transcript language code. Defaults to <code>en</code>.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h3 className="sample-label">Sample response</h3>
-          <pre>
-            {
-              '{\n  "success": true,\n  "videoId": "dQw4w9WgXcQ",\n  "language": "en",\n  "transcript": [\n    {\n      "text": "Hello",\n      "offset": 1234,\n      "duration": 567\n    }\n  ]\n}'
-            }
-          </pre>
-          <div className="commands-grid">
-            <CopyCommand
-              command={transcriptBasePowerShell}
-              label="Windows PowerShell base command"
+        <section className="page-section alt-section">
+          <SectionHeader eyebrow="Endpoints" title="Available API routes" />
+          <div className="docs-endpoints">
+            <EndpointDoc
+              method="GET"
+              path="/api/health"
+              title="Health Check"
+              description="Checks whether the API deployment is reachable."
+              response={`{
+  "status": "ok"
+}`}
             />
-            <CopyCommand command={transcriptPowerShell} label="Windows PowerShell example" />
-            <CopyCommand command={transcriptBaseCurl} label="Linux/macOS curl base command" />
-            <CopyCommand command={transcriptCurl} label="Linux/macOS curl example" />
-          </div>
-        </div>
-
-        <div className="endpoint">
-          <div className="endpoint-heading">
-            <h2>Get Languages</h2>
-            <p>Check common transcript language availability for a YouTube video.</p>
-          </div>
-          <div className="endpoint-title">
-            <div>
-              <span className="method">GET</span>
-              <code>/api/languages?id=VIDEO_ID</code>
-            </div>
-            <span className="auth-badge">API key required</span>
-          </div>
-          <p>
-            Returns a list of supported language codes and whether each language appears available.
-            Requires <code>x-api-key</code>.
-          </p>
-          <div className="endpoint-lines">
-            <div>
-              <span>Base endpoint</span>
-              <code>/api/languages?id=VIDEO_ID</code>
-            </div>
-            <div>
-              <span>Example</span>
-              <code>/api/languages?id=dQw4w9WgXcQ</code>
-            </div>
-          </div>
-          <div className="params">
-            <h3>Parameters</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Required</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <code>id</code>
-                  </td>
-                  <td>Yes</td>
-                  <td>11-character YouTube video ID.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h3 className="sample-label">Sample response</h3>
-          <pre>
-            {
-              '{\n  "success": true,\n  "videoId": "dQw4w9WgXcQ",\n  "languages": [\n    {\n      "code": "en",\n      "name": "English",\n      "available": true\n    }\n  ]\n}'
-            }
-          </pre>
-          <div className="commands-grid">
-            <CopyCommand command={languagesCurl} label="Linux/macOS curl base command" />
-          </div>
-        </div>
-
-        <div className="endpoint">
-          <div className="endpoint-heading">
-            <h2>Get Metadata</h2>
-            <p>Retrieve public title, description, thumbnail, and channel details.</p>
-          </div>
-          <div className="endpoint-title">
-            <div>
-              <span className="method">GET</span>
-              <code>/api/metadata?id=VIDEO_ID</code>
-            </div>
-            <span className="auth-badge">API key required</span>
-          </div>
-          <p>
-            Returns dynamic title, description, thumbnail, and channel for the requested video.
-            Requires <code>x-api-key</code>.
-          </p>
-          <div className="endpoint-lines">
-            <div>
-              <span>Base endpoint</span>
-              <code>/api/metadata?id=VIDEO_ID</code>
-            </div>
-            <div>
-              <span>Example</span>
-              <code>/api/metadata?id=dQw4w9WgXcQ</code>
-            </div>
-          </div>
-          <div className="params">
-            <h3>Parameters</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Required</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <code>id</code>
-                  </td>
-                  <td>Yes</td>
-                  <td>11-character YouTube video ID.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <h3 className="sample-label">Sample response</h3>
-          <pre>
-            {'{\n  "title": "",\n  "description": "",\n  "thumbnail": "",\n  "channel": ""\n}'}
-          </pre>
-          <div className="commands-grid">
-            <CopyCommand command={metadataBasePowerShell} label="Windows PowerShell base command" />
-            <CopyCommand command={metadataPowerShell} label="Windows PowerShell example" />
-            <CopyCommand command={metadataBaseCurl} label="Linux/macOS curl base command" />
-            <CopyCommand command={metadataCurl} label="Linux/macOS curl example" />
-          </div>
-        </div>
-        <div className="endpoint">
-          <div className="endpoint-heading">
-            <h2>Batch Transcripts</h2>
-            <p>Fetch transcript results for multiple videos in one request.</p>
-          </div>
-          <div className="endpoint-title">
-            <div>
-              <span className="method post">POST</span>
-              <code>/api/batch</code>
-            </div>
-            <span className="auth-badge">API key required</span>
-          </div>
-          <p>
-            Accepts up to 10 video IDs and returns per-video transcript results. Requires{" "}
-            <code>x-api-key</code>.
-          </p>
-          <h3 className="sample-label">Request body</h3>
-          <pre>{'{\n  "videos": ["dQw4w9WgXcQ", "JbhBdOfMEPs"],\n  "lang": "en"\n}'}</pre>
-          <h3 className="sample-label">Sample response</h3>
-          <pre>
-            {
-              '{\n  "success": true,\n  "count": 2,\n  "results": [\n    {\n      "success": true,\n      "videoId": "dQw4w9WgXcQ",\n      "language": "en",\n      "transcript": []\n    }\n  ]\n}'
-            }
-          </pre>
-          <div className="commands-grid">
-            <CopyCommand command={batchPowerShell} label="Windows PowerShell example" />
-            <CopyCommand command={batchCurl} label="Linux/macOS curl example" />
-          </div>
-        </div>
-        <section className="info-card" id="errors" aria-labelledby="errors-title">
-          <h2 id="errors-title">Error examples</h2>
-          <div className="error-grid">
-            <div className="error-card">
-              <h3>Invalid API key</h3>
-              <pre>
-                {
-                  '{\n  "success": false,\n  "error": {\n    "code": "invalid_api_key",\n    "message": "Invalid API key"\n  },\n  "requestId": "..."\n}'
-                }
-              </pre>
-            </div>
-            <div className="error-card">
-              <h3>Transcript not found</h3>
-              <pre>
-                {
-                  '{\n  "success": false,\n  "error": {\n    "code": "transcript_not_found",\n    "message": "Transcript is not available for this video"\n  },\n  "requestId": "..."\n}'
-                }
-              </pre>
-            </div>
-            <div className="error-card">
-              <h3>Rate limit exceeded</h3>
-              <pre>
-                {
-                  '{\n  "success": false,\n  "error": {\n    "code": "rate_limit_exceeded",\n    "message": "Rate limit exceeded"\n  },\n  "requestId": "..."\n}'
-                }
-              </pre>
-            </div>
+            <EndpointDoc
+              method="GET"
+              path="/api/transcript?id=VIDEO_ID&lang=en"
+              title="Get Transcript"
+              description="Returns transcript segments for a YouTube video."
+              params={[
+                ["id", "Yes", "11-character YouTube video ID."],
+                ["lang", "No", "Transcript language code. Defaults to en."]
+              ]}
+              response={`{
+  "success": true,
+  "videoId": "dQw4w9WgXcQ",
+  "language": "en",
+  "transcript": [
+    {
+      "text": "Hello everyone",
+      "offset": 1200,
+      "duration": 800
+    }
+  ]
+}`}
+            />
+            <EndpointDoc
+              method="GET"
+              path="/api/metadata?id=VIDEO_ID"
+              title="Get Metadata"
+              description="Returns public title, description, thumbnail, and channel details."
+              params={[["id", "Yes", "11-character YouTube video ID."]]}
+              response={`{
+  "title": "Example Video Title",
+  "description": "Example description",
+  "thumbnail": "https://...",
+  "channel": "Example Channel"
+}`}
+            />
+            <EndpointDoc
+              method="GET"
+              path="/api/languages?id=VIDEO_ID"
+              title="Get Languages"
+              description="Checks common transcript language availability."
+              params={[["id", "Yes", "11-character YouTube video ID."]]}
+              response={`{
+  "success": true,
+  "videoId": "dQw4w9WgXcQ",
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "available": true
+    }
+  ]
+}`}
+            />
+            <EndpointDoc
+              method="POST"
+              path="/api/batch"
+              title="Batch Transcripts"
+              description="Processes multiple YouTube video IDs in one request."
+              response={`{
+  "success": true,
+  "count": 2,
+  "results": []
+}`}
+            />
           </div>
         </section>
-      </section>
-      <footer className="docs-footer">
-        <span>youtube-transcript-api v1.0.0</span>
-        <a href="/api/openapi">OpenAPI JSON</a>
-      </footer>
-    </main>
+
+        <section className="page-section">
+          <SectionHeader eyebrow="Request examples" title="Copy-ready examples" />
+          <div className="commands-grid">
+            <CopyCommand command={vercelTranscriptCurl} label="GET /api/transcript" />
+            <CopyCommand command={vercelMetadataCurl} label="GET /api/metadata" />
+            <CopyCommand command={vercelLanguagesCurl} label="GET /api/languages" />
+            <CopyCommand command={vercelBatchCurl} label="POST /api/batch" />
+            <CopyCommand command={rapidApiTranscriptCurl} label="RapidAPI GET /api/transcript" />
+            <CopyCommand command={rapidApiMetadataCurl} label="RapidAPI GET /api/metadata" />
+            <CopyCommand command={rapidApiLanguagesCurl} label="RapidAPI GET /api/languages" />
+            <CopyCommand command={rapidApiBatchCurl} label="RapidAPI POST /api/batch" />
+          </div>
+        </section>
+
+        <section className="page-section alt-section">
+          <SectionHeader eyebrow="Errors" title="Error codes" />
+          <div className="error-grid">
+            <ErrorExample code="missing_api_key" message="Missing API key" />
+            <ErrorExample code="invalid_api_key" message="Invalid API key" />
+            <ErrorExample code="invalid_request" message="Invalid request parameters" />
+            <ErrorExample
+              code="transcript_not_found"
+              message="Transcript is not available for this video"
+            />
+            <ErrorExample code="rate_limit_exceeded" message="Rate limit exceeded" />
+            <ErrorExample code="redis_unavailable" message="Redis is not configured correctly" />
+          </div>
+        </section>
+      </main>
+    </PageShell>
+  );
+}
+
+function EndpointDoc({
+  method,
+  path,
+  title,
+  description,
+  params = [],
+  response
+}: {
+  method: "GET" | "POST";
+  path: string;
+  title: string;
+  description: string;
+  params?: Array<[string, string, string]>;
+  response: string;
+}) {
+  return (
+    <article className="endpoint doc-endpoint">
+      <div className="endpoint-heading">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+      <div className="endpoint-title">
+        <div>
+          <span className={method === "POST" ? "method post" : "method"}>{method}</span>
+          <code>{path}</code>
+        </div>
+      </div>
+      {params.length > 0 ? (
+        <div className="params">
+          <h3>Parameters</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {params.map(([name, required, detail]) => (
+                <tr key={name}>
+                  <td>
+                    <code>{name}</code>
+                  </td>
+                  <td>{required}</td>
+                  <td>{detail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <h3 className="sample-label">Sample response</h3>
+      <pre>{response}</pre>
+    </article>
+  );
+}
+
+function ErrorExample({ code, message }: { code: string; message: string }) {
+  return (
+    <article className="error-card">
+      <h3>{code}</h3>
+      <pre>{`{
+  "success": false,
+  "error": {
+    "code": "${code}",
+    "message": "${message}"
+  },
+  "requestId": "..."
+}`}</pre>
+    </article>
   );
 }
