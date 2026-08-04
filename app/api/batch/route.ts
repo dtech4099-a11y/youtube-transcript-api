@@ -8,7 +8,7 @@ import { getTranscript, type TranscriptItem } from "@/lib/youtube/transcript";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const preferredRegion = "bom1";
+export const preferredRegion = "global";
 
 type BatchTranscriptResult =
   | {

@@ -8,7 +8,7 @@ import { getMetadata, type VideoMetadata } from "@/lib/youtube/metadata";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const preferredRegion = "bom1";
+export const preferredRegion = "global";
 
 export function OPTIONS() {
   return corsPreflightResponse();
