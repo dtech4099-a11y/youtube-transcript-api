@@ -38,7 +38,11 @@ export default function PricingPage() {
                   <li>JSON responses</li>
                   <li>REST API access</li>
                 </ul>
-                <Link href="/docs">Get started</Link>
+                {plan.name === "Enterprise" ? (
+                  <Link href="/contact">Contact sales</Link>
+                ) : (
+                  <a href={siteConfig.rapidApiMarketplaceUrl}>Get started</a>
+                )}
               </article>
             ))}
           </div>

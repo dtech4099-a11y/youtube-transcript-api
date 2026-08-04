@@ -8,6 +8,7 @@ import { getTranscript, type TranscriptItem } from "@/lib/youtube/transcript";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const preferredRegion = "bom1";
 
 type TranscriptResponse = {
   success: true;

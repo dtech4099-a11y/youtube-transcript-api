@@ -3,6 +3,7 @@ export const siteConfig = {
   company: "DTech DevOps",
   email: "dtech4099@gmail.com",
   website: "https://youtube-trascript-api.vercel.app",
+  rapidApiMarketplaceUrl: "https://rapidapi.com/dtech4099/api/youtube-transcript27",
   rapidApiBaseUrl: "https://youtube-transcript27.p.rapidapi.com",
   description:
     "Extract transcripts, captions, metadata, and languages from YouTube videos instantly."
