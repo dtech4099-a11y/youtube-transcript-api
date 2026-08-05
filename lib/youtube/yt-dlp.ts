@@ -1,4 +1,7 @@
 import { execFile } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { promisify } from "node:util";
 
 import { logger } from "@/lib/logger/logger";
@@ -6,6 +9,9 @@ import type { TranscriptItem } from "@/lib/youtube/transcript";
 
 const execFileAsync = promisify(execFile);
 const ytdlpTimeoutMs = 45_000;
+const cookiesDirectory = join(tmpdir(), "youtube-transcript-api");
+const cookiesPath = join(cookiesDirectory, "youtube-cookies.txt");
+let cookiesWritePromise: Promise<string | null> | null = null;
 
 type YtDlpSubtitle = {
   url?: string;
@@ -98,21 +104,52 @@ function parseJson3Caption(caption: Json3Caption): TranscriptItem[] {
     .filter((item): item is TranscriptItem => Boolean(item));
 }
 
+async function getCookiesPath(): Promise<string | null> {
+  if (!process.env.YOUTUBE_COOKIES_BASE64) {
+    return null;
+  }
+
+  cookiesWritePromise ??= (async () => {
+    const decodedCookies = Buffer.from(process.env.YOUTUBE_COOKIES_BASE64 ?? "", "base64")
+      .toString("utf8")
+      .trim();
+
+    if (!decodedCookies) {
+      return null;
+    }
+
+    await mkdir(cookiesDirectory, { recursive: true });
+    await writeFile(cookiesPath, `${decodedCookies}\n`, { mode: 0o600 });
+
+    return cookiesPath;
+  })();
+
+  return cookiesWritePromise;
+}
+
 async function getYtDlpInfo(videoId: string, language: string): Promise<YtDlpInfo> {
+  const runtimeCookiesPath = await getCookiesPath();
+  const args = [
+    "--dump-json",
+    "--skip-download",
+    "--no-warnings",
+    "--write-subs",
+    "--write-auto-subs",
+    "--sub-langs",
+    language,
+    "--sub-format",
+    "json3"
+  ];
+
+  if (runtimeCookiesPath) {
+    args.push("--cookies", runtimeCookiesPath);
+  }
+
+  args.push(youtubeUrl(videoId));
+
   const { stdout } = await execFileAsync(
     "yt-dlp",
-    [
-      "--dump-json",
-      "--skip-download",
-      "--no-warnings",
-      "--write-subs",
-      "--write-auto-subs",
-      "--sub-langs",
-      language,
-      "--sub-format",
-      "json3",
-      youtubeUrl(videoId)
-    ],
+    args,
     {
       timeout: ytdlpTimeoutMs,
       maxBuffer: 10 * 1024 * 1024
