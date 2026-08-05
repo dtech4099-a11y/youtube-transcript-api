@@ -132,6 +132,7 @@ async function getYtDlpInfo(videoId: string, language: string): Promise<YtDlpInf
   const args = [
     "--dump-json",
     "--skip-download",
+    "--ignore-no-formats",
     "--no-warnings",
     "--write-subs",
     "--write-auto-subs",
