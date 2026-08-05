@@ -1,6 +1,7 @@
 import { fetchTranscript } from "youtube-transcript";
 
 import { ApiError } from "@/lib/utils/errors";
+import { getTranscriptWithYtDlp } from "@/lib/youtube/yt-dlp";
 
 export type TranscriptItem = {
   text: string;
@@ -15,10 +16,12 @@ type YoutubeTranscriptItem = {
 };
 
 export async function getTranscript(videoId: string, language?: string): Promise<TranscriptItem[]> {
+  const requestedLanguage = language ?? "en";
+
   try {
     const transcript = (await fetchTranscript(
       videoId,
-      language ? { lang: language } : undefined
+      requestedLanguage ? { lang: requestedLanguage } : undefined
     )) as YoutubeTranscriptItem[];
 
     return transcript.map((item) => ({
@@ -30,18 +33,39 @@ export async function getTranscript(videoId: string, language?: string): Promise
     const message = error instanceof Error ? error.message : "Unable to fetch transcript";
 
     if (/disabled|not available|no transcript|could not find|not found/i.test(message)) {
+      try {
+        return await getTranscriptWithYtDlp(videoId, requestedLanguage);
+      } catch (fallbackError) {
+        const fallbackMessage =
+          fallbackError instanceof Error ? fallbackError.message : "yt-dlp fallback failed";
+
+        throw new ApiError(
+          404,
+          "transcript_not_found",
+          "Transcript is not available for this video",
+          {
+            reason: message,
+            fallback: fallbackMessage
+          }
+        );
+      }
+    }
+
+    try {
+      return await getTranscriptWithYtDlp(videoId, requestedLanguage);
+    } catch (fallbackError) {
+      const fallbackMessage =
+        fallbackError instanceof Error ? fallbackError.message : "yt-dlp fallback failed";
+
       throw new ApiError(
-        404,
-        "transcript_not_found",
-        "Transcript is not available for this video",
+        502,
+        "youtube_transcript_error",
+        "YouTube transcript fetch failed",
         {
-          reason: message
+          reason: message,
+          fallback: fallbackMessage
         }
       );
     }
-
-    throw new ApiError(502, "youtube_transcript_error", "YouTube transcript fetch failed", {
-      reason: message
-    });
   }
 }
