@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://youtube-trascript-api.vercel.app"),
+  metadataBase: new URL("https://youtube-transcript-api-production-0221.up.railway.app"),
   title: {
     default: "YouTube Transcript API",
     template: "%s"
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: "YouTube Transcript API",
     description:
       "Extract transcripts, captions, metadata, and languages from YouTube videos instantly.",
-    url: "https://youtube-trascript-api.vercel.app",
+    url: "https://youtube-transcript-api-production-0221.up.railway.app",
     siteName: "YouTube Transcript API",
     type: "website"
   },

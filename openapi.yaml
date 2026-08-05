@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: REST API for retrieving YouTube transcripts, language availability, metadata, and batch transcripts.
 servers:
-  - url: https://youtube-trascript-api.vercel.app
+  - url: https://youtube-transcript-api-production-0221.up.railway.app
 components:
   securitySchemes:
     ApiKeyAuth:
