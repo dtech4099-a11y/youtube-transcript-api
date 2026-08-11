@@ -9,6 +9,14 @@ export type TranscriptItem = {
   duration: number;
 };
 
+export function transcriptToText(transcript: TranscriptItem[]) {
+  return transcript
+    .map((item) => item.text)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 type YoutubeTranscriptItem = {
   text: string;
   offset: number;

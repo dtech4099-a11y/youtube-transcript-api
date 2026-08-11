@@ -13,15 +13,19 @@ export const languageSchema = z
   .regex(/^[a-z]{2,3}(-[A-Z]{2})?$/, "Language must be a BCP-47-like code such as en or en-US")
   .optional();
 
+export const transcriptFormatSchema = z.enum(["segments", "text"]).default("segments");
+
 export function parseVideoRequest(searchParams: URLSearchParams) {
   const result = z
     .object({
       id: videoIdSchema,
-      lang: languageSchema
+      lang: languageSchema,
+      format: transcriptFormatSchema
     })
     .safeParse({
       id: searchParams.get("id"),
-      lang: searchParams.get("lang") ?? undefined
+      lang: searchParams.get("lang") ?? undefined,
+      format: searchParams.get("format") ?? undefined
     });
 
   if (!result.success) {
@@ -41,7 +45,8 @@ export const batchRequestSchema = z.object({
     .array(videoIdSchema)
     .min(1, "Provide at least one video id")
     .max(10, "Batch requests support up to 10 videos"),
-  lang: languageSchema
+  lang: languageSchema,
+  format: transcriptFormatSchema
 });
 
 export type BatchRequest = z.infer<typeof batchRequestSchema>;

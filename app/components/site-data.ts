@@ -20,10 +20,11 @@ export const navLinks = [
 ];
 
 export const features = [
+  "Batch processing",
   "Transcript extraction",
+  "Clean text output",
   "Metadata extraction",
   "Language detection",
-  "Batch processing",
   "OpenAPI support",
   "Global deployment",
   "Rate limiting",
@@ -31,6 +32,7 @@ export const features = [
 ];
 
 export const endpoints = [
+  { method: "POST", path: "/api/batch", description: "Process multiple videos in one request." },
   { method: "GET", path: "/api/transcript", description: "Retrieve timed transcript segments." },
   {
     method: "GET",
@@ -41,8 +43,7 @@ export const endpoints = [
     method: "GET",
     path: "/api/languages",
     description: "Discover available transcript languages."
-  },
-  { method: "POST", path: "/api/batch", description: "Process multiple videos in one request." }
+  }
 ];
 
 export const pricingPlans = [

@@ -1,10 +1,10 @@
 import type { NextRequest } from "next/server";
 
-import { readCache, transcriptCacheKey, writeTranscriptCache } from "@/lib/cache/cache";
+import { formattedTranscriptCacheKey, readCache, writeTranscriptCache } from "@/lib/cache/cache";
 import { withApiHandler } from "@/lib/api-handler";
 import { corsPreflightResponse, jsonResponse } from "@/lib/utils/http";
 import { parseVideoRequest } from "@/lib/utils/validation";
-import { getTranscript, type TranscriptItem } from "@/lib/youtube/transcript";
+import { getTranscript, transcriptToText, type TranscriptItem } from "@/lib/youtube/transcript";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,27 +17,44 @@ type TranscriptResponse = {
   transcript: TranscriptItem[];
 };
 
+type TextTranscriptResponse = {
+  success: true;
+  videoId: string;
+  language: string;
+  format: "text";
+  text: string;
+};
+
 export function OPTIONS() {
   return corsPreflightResponse();
 }
 
 export const GET = withApiHandler(async (request: NextRequest) => {
-  const { id, lang } = parseVideoRequest(request.nextUrl.searchParams);
+  const { id, lang, format } = parseVideoRequest(request.nextUrl.searchParams);
   const language = lang ?? "en";
-  const cacheKey = transcriptCacheKey(id, language);
-  const cached = await readCache<TranscriptResponse>(cacheKey);
+  const cacheKey = formattedTranscriptCacheKey(id, language, format);
+  const cached = await readCache<TranscriptResponse | TextTranscriptResponse>(cacheKey);
 
   if (cached) {
     return jsonResponse(cached, 200, { "x-cache": "HIT" });
   }
 
   const transcript = await getTranscript(id, language);
-  const response: TranscriptResponse = {
-    success: true,
-    videoId: id,
-    language,
-    transcript
-  };
+  const response =
+    format === "text"
+      ? {
+          success: true,
+          videoId: id,
+          language,
+          format,
+          text: transcriptToText(transcript)
+        }
+      : {
+          success: true,
+          videoId: id,
+          language,
+          transcript
+        };
 
   await writeTranscriptCache(cacheKey, response);
 

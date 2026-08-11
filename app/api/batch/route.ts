@@ -1,10 +1,10 @@
 import type { NextRequest } from "next/server";
 
-import { readCache, transcriptCacheKey, writeTranscriptCache } from "@/lib/cache/cache";
+import { formattedTranscriptCacheKey, readCache, writeTranscriptCache } from "@/lib/cache/cache";
 import { withApiHandler } from "@/lib/api-handler";
 import { corsPreflightResponse, jsonResponse } from "@/lib/utils/http";
 import { batchRequestSchema, parseJsonBody } from "@/lib/utils/validation";
-import { getTranscript, type TranscriptItem } from "@/lib/youtube/transcript";
+import { getTranscript, transcriptToText, type TranscriptItem } from "@/lib/youtube/transcript";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +16,13 @@ type BatchTranscriptResult =
       videoId: string;
       language: string;
       transcript: TranscriptItem[];
+    }
+  | {
+      success: true;
+      videoId: string;
+      language: string;
+      format: "text";
+      text: string;
     }
   | {
       success: false;
@@ -34,9 +41,10 @@ export function OPTIONS() {
 export const POST = withApiHandler(async (request: NextRequest) => {
   const body = await parseJsonBody(request, batchRequestSchema);
   const language = body.lang ?? "en";
+  const format = body.format;
   const results = await Promise.all(
     body.videos.map(async (videoId): Promise<BatchTranscriptResult> => {
-      const cacheKey = transcriptCacheKey(videoId, language);
+      const cacheKey = formattedTranscriptCacheKey(videoId, language, format);
       const cached = await readCache<Extract<BatchTranscriptResult, { success: true }>>(cacheKey);
 
       if (cached) {
@@ -45,12 +53,21 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
       try {
         const transcript = await getTranscript(videoId, language);
-        const result: BatchTranscriptResult = {
-          success: true,
-          videoId,
-          language,
-          transcript
-        };
+        const result: BatchTranscriptResult =
+          format === "text"
+            ? {
+                success: true,
+                videoId,
+                language,
+                format,
+                text: transcriptToText(transcript)
+              }
+            : {
+                success: true,
+                videoId,
+                language,
+                transcript
+              };
 
         await writeTranscriptCache(cacheKey, result);
         return result;
@@ -69,10 +86,14 @@ export const POST = withApiHandler(async (request: NextRequest) => {
       }
     })
   );
+  const successful = results.filter((result) => result.success).length;
+  const failed = results.length - successful;
 
   return jsonResponse({
     success: true,
     count: results.length,
+    successful,
+    failed,
     results
   });
 });

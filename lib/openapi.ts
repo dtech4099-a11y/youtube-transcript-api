@@ -17,6 +17,14 @@ const languageParameter = {
   schema: { type: "string", example: "en" }
 };
 
+const transcriptFormatParameter = {
+  name: "format",
+  in: "query",
+  required: false,
+  schema: { type: "string", enum: ["segments", "text"], default: "segments" },
+  example: "text"
+};
+
 const errorResponses = {
   "400": { description: "Invalid request" },
   "401": { description: "Unauthorized" },
@@ -96,7 +104,7 @@ export const openApiDocument = {
       get: {
         summary: "Get transcript",
         security,
-        parameters: [videoIdParameter, languageParameter],
+        parameters: [videoIdParameter, languageParameter, transcriptFormatParameter],
         responses: {
           "200": {
             description: "Transcript response",
@@ -111,9 +119,11 @@ export const openApiDocument = {
                     transcript: {
                       type: "array",
                       items: { $ref: "#/components/schemas/TranscriptItem" }
-                    }
+                    },
+                    format: { type: "string", enum: ["text"] },
+                    text: { type: "string" }
                   },
-                  required: ["success", "videoId", "language", "transcript"]
+                  required: ["success", "videoId", "language"]
                 }
               }
             }
@@ -203,19 +213,23 @@ export const openApiDocument = {
                     maxItems: 10,
                     items: { type: "string", pattern: "^[a-zA-Z0-9_-]{11}$" }
                   },
-                  lang: { type: "string", example: "en" }
+                  lang: { type: "string", example: "en" },
+                  format: { type: "string", enum: ["segments", "text"], default: "segments" }
                 },
                 required: ["videos"]
               },
               example: {
                 videos: ["dQw4w9WgXcQ", "JbhBdOfMEPs"],
-                lang: "en"
+                lang: "en",
+                format: "text"
               }
             }
           }
         },
         responses: {
-          "200": { description: "Batch transcript response" },
+          "200": {
+            description: "Batch transcript response with successful and failed result counts"
+          },
           ...errorResponses
         }
       }

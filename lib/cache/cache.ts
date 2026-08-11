@@ -5,6 +5,10 @@ export function transcriptCacheKey(videoId: string, language?: string) {
   return `transcript:${videoId}:${language ?? "default"}`;
 }
 
+export function formattedTranscriptCacheKey(videoId: string, language: string, format: string) {
+  return `transcript:${videoId}:${language}:${format}`;
+}
+
 export function metadataCacheKey(videoId: string) {
   return `metadata:${videoId}`;
 }

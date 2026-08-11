@@ -18,7 +18,7 @@ export default function HomePage() {
         <section className="hero-section">
           <div className="hero-copy-block">
             <p className="eyebrow">Production-ready REST API</p>
-            <h1>YouTube Transcript API</h1>
+            <h1>Batch YouTube Transcript API</h1>
             <p>{siteConfig.description}</p>
             <div className="hero-actions">
               <Link href="/docs">View documentation</Link>
@@ -31,9 +31,11 @@ export default function HomePage() {
               <span />
               <span />
             </div>
-            <pre>{`curl --request GET \\
-  --url '${siteConfig.website}/api/transcript?id=dQw4w9WgXcQ&lang=en' \\
-  --header 'x-api-key: YOUR_API_KEY'`}</pre>
+            <pre>{`curl --request POST \\
+  --url '${siteConfig.website}/api/batch' \\
+  --header 'content-type: application/json' \\
+  --header 'x-api-key: YOUR_API_KEY' \\
+  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en","format":"text"}'`}</pre>
           </div>
         </section>
 
@@ -57,8 +59,8 @@ export default function HomePage() {
         <section className="page-section alt-section">
           <SectionHeader
             eyebrow="API endpoints"
-            title="Simple REST endpoints"
-            description="Use one consistent JSON API for transcripts, video metadata, language checks, and batch processing."
+            title="Batch-first REST endpoints"
+            description="Use one consistent JSON API for batch transcripts, clean text, timestamped segments, video metadata, and language checks."
           />
           <div className="endpoint-grid">
             {endpoints.map((endpoint) => (

@@ -13,7 +13,11 @@ export const metadata: Metadata = {
 };
 
 const vercelTranscriptCurl = `curl --request GET \\
-  --url '${siteConfig.website}/api/transcript?id=dQw4w9WgXcQ&lang=en' \\
+  --url '${siteConfig.website}/api/transcript?id=dQw4w9WgXcQ&lang=en&format=segments' \\
+  --header 'x-api-key: YOUR_API_KEY'`;
+
+const vercelTextTranscriptCurl = `curl --request GET \\
+  --url '${siteConfig.website}/api/transcript?id=dQw4w9WgXcQ&lang=en&format=text' \\
   --header 'x-api-key: YOUR_API_KEY'`;
 
 const vercelMetadataCurl = `curl --request GET \\
@@ -28,10 +32,15 @@ const vercelBatchCurl = `curl --request POST \\
   --url '${siteConfig.website}/api/batch' \\
   --header 'content-type: application/json' \\
   --header 'x-api-key: YOUR_API_KEY' \\
-  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en"}'`;
+  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en","format":"text"}'`;
 
 const rapidApiTranscriptCurl = `curl --request GET \\
-  --url '${siteConfig.rapidApiBaseUrl}/api/transcript?id=dQw4w9WgXcQ&lang=en' \\
+  --url '${siteConfig.rapidApiBaseUrl}/api/transcript?id=dQw4w9WgXcQ&lang=en&format=segments' \\
+  --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
+  --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'`;
+
+const rapidApiTextTranscriptCurl = `curl --request GET \\
+  --url '${siteConfig.rapidApiBaseUrl}/api/transcript?id=dQw4w9WgXcQ&lang=en&format=text' \\
   --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
   --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY'`;
 
@@ -50,7 +59,7 @@ const rapidApiBatchCurl = `curl --request POST \\
   --header 'content-type: application/json' \\
   --header 'x-rapidapi-host: youtube-transcript27.p.rapidapi.com' \\
   --header 'x-rapidapi-key: YOUR_RAPIDAPI_KEY' \\
-  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en"}'`;
+  --data '{"videos":["dQw4w9WgXcQ","JbhBdOfMEPs"],"lang":"en","format":"text"}'`;
 
 export default function DocsPage() {
   return (
@@ -87,25 +96,47 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
         </section>
 
         <section className="page-section alt-section">
-          <SectionHeader eyebrow="Endpoints" title="Available API routes" />
+          <SectionHeader
+            eyebrow="Endpoints"
+            title="Batch-first API routes"
+            description="Batch processing is the main workflow for AI summarizers, channel analysis, research tools, and content pipelines."
+          />
           <div className="docs-endpoints">
             <EndpointDoc
-              method="GET"
-              path="/api/health"
-              title="Health Check"
-              description="Checks whether the API deployment is reachable."
+              method="POST"
+              path="/api/batch"
+              title="Batch Transcripts"
+              description="Processes multiple YouTube video IDs in one request. Use format=text for AI summarization pipelines, or format=segments for timestamps."
+              params={[
+                ["videos", "Yes", "Array of 1–10 YouTube video IDs."],
+                ["lang", "No", "Transcript language code. Defaults to en."],
+                ["format", "No", "segments or text. Defaults to segments."]
+              ]}
               response={`{
-  "status": "ok"
+  "success": true,
+  "count": 2,
+  "successful": 2,
+  "failed": 0,
+  "results": [
+    {
+      "success": true,
+      "videoId": "dQw4w9WgXcQ",
+      "language": "en",
+      "format": "text",
+      "text": "Full clean transcript text..."
+    }
+  ]
 }`}
             />
             <EndpointDoc
               method="GET"
-              path="/api/transcript?id=VIDEO_ID&lang=en"
+              path="/api/transcript?id=VIDEO_ID&lang=en&format=segments"
               title="Get Transcript"
-              description="Returns transcript segments for a YouTube video."
+              description="Returns transcript data for a YouTube video. Use format=text for clean joined text, or format=segments for timestamped segments."
               params={[
                 ["id", "Yes", "11-character YouTube video ID."],
-                ["lang", "No", "Transcript language code. Defaults to en."]
+                ["lang", "No", "Transcript language code. Defaults to en."],
+                ["format", "No", "segments or text. Defaults to segments."]
               ]}
               response={`{
   "success": true,
@@ -118,6 +149,24 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
       "duration": 800
     }
   ]
+}`}
+            />
+            <EndpointDoc
+              method="GET"
+              path="/api/transcript?id=VIDEO_ID&lang=en&format=text"
+              title="Get Clean Text"
+              description="Returns a clean plain-text transcript for summarization and search pipelines."
+              params={[
+                ["id", "Yes", "11-character YouTube video ID."],
+                ["lang", "No", "Transcript language code. Defaults to en."],
+                ["format", "No", "Set to text."]
+              ]}
+              response={`{
+  "success": true,
+  "videoId": "dQw4w9WgXcQ",
+  "language": "en",
+  "format": "text",
+  "text": "Full clean transcript text..."
 }`}
             />
             <EndpointDoc
@@ -152,14 +201,12 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
 }`}
             />
             <EndpointDoc
-              method="POST"
-              path="/api/batch"
-              title="Batch Transcripts"
-              description="Processes multiple YouTube video IDs in one request."
+              method="GET"
+              path="/api/health"
+              title="Health Check"
+              description="Checks whether the API deployment is reachable."
               response={`{
-  "success": true,
-  "count": 2,
-  "results": []
+  "status": "ok"
 }`}
             />
           </div>
@@ -168,14 +215,19 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
         <section className="page-section">
           <SectionHeader eyebrow="Request examples" title="Copy-ready examples" />
           <div className="commands-grid">
+            <CopyCommand command={vercelBatchCurl} label="POST /api/batch" />
             <CopyCommand command={vercelTranscriptCurl} label="GET /api/transcript" />
+            <CopyCommand command={vercelTextTranscriptCurl} label="GET /api/transcript format=text" />
             <CopyCommand command={vercelMetadataCurl} label="GET /api/metadata" />
             <CopyCommand command={vercelLanguagesCurl} label="GET /api/languages" />
-            <CopyCommand command={vercelBatchCurl} label="POST /api/batch" />
+            <CopyCommand command={rapidApiBatchCurl} label="RapidAPI POST /api/batch" />
             <CopyCommand command={rapidApiTranscriptCurl} label="RapidAPI GET /api/transcript" />
+            <CopyCommand
+              command={rapidApiTextTranscriptCurl}
+              label="RapidAPI GET /api/transcript format=text"
+            />
             <CopyCommand command={rapidApiMetadataCurl} label="RapidAPI GET /api/metadata" />
             <CopyCommand command={rapidApiLanguagesCurl} label="RapidAPI GET /api/languages" />
-            <CopyCommand command={rapidApiBatchCurl} label="RapidAPI POST /api/batch" />
           </div>
         </section>
 

@@ -56,9 +56,17 @@ paths:
           schema:
             type: string
           example: en
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [segments, text]
+            default: segments
+          example: text
       responses:
         "200":
-          description: Transcript response
+          description: Transcript response. Default format returns timestamped segments; format=text returns clean joined text.
   /api/languages:
     get:
       summary: Get available transcript languages
@@ -111,11 +119,16 @@ paths:
                     pattern: "^[a-zA-Z0-9_-]{11}$"
                 lang:
                   type: string
+                format:
+                  type: string
+                  enum: [segments, text]
+                  default: segments
             example:
               videos:
                 - dQw4w9WgXcQ
                 - JbhBdOfMEPs
               lang: en
+              format: text
       responses:
         "200":
-          description: Batch transcript response
+          description: Batch transcript response with count, successful, failed, and results fields
