@@ -1,6 +1,11 @@
 import type { NextRequest } from "next/server";
 
-import { formattedTranscriptCacheKey, readCache, writeTranscriptCache } from "@/lib/cache/cache";
+import {
+  formattedTranscriptCacheKey,
+  readCache,
+  transcriptCacheKey,
+  writeTranscriptCache
+} from "@/lib/cache/cache";
 import { withApiHandler } from "@/lib/api-handler";
 import { corsPreflightResponse, jsonResponse } from "@/lib/utils/http";
 import { batchRequestSchema, parseJsonBody } from "@/lib/utils/validation";
@@ -45,6 +50,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   const results = await Promise.all(
     body.videos.map(async (videoId): Promise<BatchTranscriptResult> => {
       const cacheKey = formattedTranscriptCacheKey(videoId, language, format);
+      const segmentCacheKey = transcriptCacheKey(videoId, language);
       const cached = await readCache<Extract<BatchTranscriptResult, { success: true }>>(cacheKey);
 
       if (cached) {
@@ -52,7 +58,10 @@ export const POST = withApiHandler(async (request: NextRequest) => {
       }
 
       try {
-        const transcript = await getTranscript(videoId, language);
+        const cachedSegments = await readCache<
+          Extract<BatchTranscriptResult, { success: true; transcript: TranscriptItem[] }>
+        >(segmentCacheKey);
+        const transcript = cachedSegments?.transcript ?? (await getTranscript(videoId, language));
         const result: BatchTranscriptResult =
           format === "text"
             ? {
@@ -68,6 +77,15 @@ export const POST = withApiHandler(async (request: NextRequest) => {
                 language,
                 transcript
               };
+
+        if (!cachedSegments) {
+          await writeTranscriptCache(segmentCacheKey, {
+            success: true,
+            videoId,
+            language,
+            transcript
+          });
+        }
 
         await writeTranscriptCache(cacheKey, result);
         return result;

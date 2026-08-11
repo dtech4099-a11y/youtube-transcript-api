@@ -137,7 +137,7 @@ async function getYtDlpInfo(videoId: string, language: string): Promise<YtDlpInf
     "--write-subs",
     "--write-auto-subs",
     "--sub-langs",
-    language,
+    `${language},${language}.*,${language.toLowerCase()},${language.toLowerCase()}.*`,
     "--sub-format",
     "json3"
   ];
