@@ -97,6 +97,26 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
 
         <section className="page-section alt-section">
           <SectionHeader
+            eyebrow="Usage model"
+            title="Usage is measured by videos processed"
+            description="A single transcript request counts as 1 video processed. A single metadata request counts as 1 video processed. A single languages request counts as 1 video processed. A batch request with 10 video IDs counts as 10 videos processed."
+          />
+          <div className="info-panel">
+            <ul>
+              <li>Single transcript request = 1 video processed</li>
+              <li>Single metadata request = 1 video processed</li>
+              <li>Single languages request = 1 video processed</li>
+              <li>Batch request with 10 video IDs = 10 videos processed</li>
+            </ul>
+            <p>
+              This makes pricing easier to estimate for batch workflows like podcast analysis,
+              YouTube channel processing, AI summarization, and search indexing.
+            </p>
+          </div>
+        </section>
+
+        <section className="page-section alt-section">
+          <SectionHeader
             eyebrow="Endpoints"
             title="Batch-first API routes"
             description="Batch processing is the main workflow for AI summarizers, channel analysis, research tools, and content pipelines."
