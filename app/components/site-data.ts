@@ -47,16 +47,21 @@ export const endpoints = [
 ];
 
 export const pricingPlans = [
-  { name: "Free", price: "$0", requests: "100 requests", support: "Basic support" },
-  { name: "Basic", price: "$5", requests: "10,000 requests", support: "Email support" },
+  { name: "Free", price: "$0", requests: "1,000 videos processed/month", support: "Basic support" },
+  { name: "Basic", price: "$5", requests: "10,000 videos processed/month", support: "Email support" },
   {
     name: "Professional",
     price: "$10",
-    requests: "100,000 requests",
+    requests: "50,000 videos processed/month",
     support: "Priority support",
     featured: true
   },
-  { name: "Enterprise", price: "Custom", requests: "Unlimited usage", support: "Dedicated support" }
+  {
+    name: "Enterprise",
+    price: "Custom",
+    requests: "100,000+ videos processed/month",
+    support: "Dedicated support"
+  }
 ];
 
 export const faqs = [

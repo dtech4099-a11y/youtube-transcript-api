@@ -46,6 +46,13 @@ export default function PricingPage() {
               </article>
             ))}
           </div>
+          <div className="info-panel pricing-usage-note">
+            <h2>Usage is measured by videos processed</h2>
+            <p>
+              A single transcript, metadata, or languages request counts as 1 video processed.
+              A batch request with 10 video IDs counts as 10 videos processed.
+            </p>
+          </div>
         </section>
         <section className="page-section alt-section">
           <SectionHeader
