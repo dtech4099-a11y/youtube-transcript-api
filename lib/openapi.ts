@@ -62,6 +62,15 @@ export const openApiDocument = {
         },
         required: ["text", "offset", "duration"]
       },
+      CacheMetadata: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["hit", "miss"] },
+          fetchedAt: { type: "string", format: "date-time" },
+          ttlSeconds: { type: "number", example: 86400 }
+        },
+        required: ["status", "fetchedAt", "ttlSeconds"]
+      },
       ErrorResponse: {
         type: "object",
         properties: {
@@ -121,7 +130,8 @@ export const openApiDocument = {
                       items: { $ref: "#/components/schemas/TranscriptItem" }
                     },
                     format: { type: "string", enum: ["text"] },
-                    text: { type: "string" }
+                    text: { type: "string" },
+                    cache: { $ref: "#/components/schemas/CacheMetadata" }
                   },
                   required: ["success", "videoId", "language"]
                 }
@@ -228,7 +238,8 @@ export const openApiDocument = {
         },
         responses: {
           "200": {
-            description: "Batch transcript response with successful and failed result counts"
+            description:
+              "Batch transcript response with successful and failed result counts. Successful results include cache.status, cache.fetchedAt, and cache.ttlSeconds."
           },
           ...errorResponses
         }

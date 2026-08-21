@@ -29,6 +29,19 @@ components:
           type: number
         duration:
           type: number
+    CacheMetadata:
+      type: object
+      required: [status, fetchedAt, ttlSeconds]
+      properties:
+        status:
+          type: string
+          enum: [hit, miss]
+        fetchedAt:
+          type: string
+          format: date-time
+        ttlSeconds:
+          type: number
+          example: 86400
 paths:
   /api/health:
     get:
@@ -66,7 +79,7 @@ paths:
           example: text
       responses:
         "200":
-          description: Transcript response. Default format returns timestamped segments; format=text returns clean joined text.
+          description: Transcript response. Default format returns timestamped segments; format=text returns clean joined text. Successful responses include cache.status, cache.fetchedAt, and cache.ttlSeconds.
   /api/languages:
     get:
       summary: Get available transcript languages
@@ -131,4 +144,4 @@ paths:
               format: text
       responses:
         "200":
-          description: Batch transcript response with count, successful, failed, and results fields
+          description: Batch transcript response with count, successful, failed, and results fields. Successful results include cache.status, cache.fetchedAt, and cache.ttlSeconds.

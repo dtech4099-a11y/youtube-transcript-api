@@ -1,9 +1,14 @@
 import type { NextRequest } from "next/server";
 
 import {
+  cacheMetadata,
+  createCachedValue,
   formattedTranscriptCacheKey,
+  isCachedValue,
   readCache,
   transcriptCacheKey,
+  type CacheMetadata,
+  type CachedValue,
   writeTranscriptCache
 } from "@/lib/cache/cache";
 import { withApiHandler } from "@/lib/api-handler";
@@ -20,6 +25,7 @@ type TranscriptResponse = {
   videoId: string;
   language: string;
   transcript: TranscriptItem[];
+  cache?: CacheMetadata;
 };
 
 type TextTranscriptResponse = {
@@ -28,7 +34,32 @@ type TextTranscriptResponse = {
   language: string;
   format: "text";
   text: string;
+  cache?: CacheMetadata;
 };
+
+type TranscriptData = Omit<TranscriptResponse, "cache">;
+type TextTranscriptData = Omit<TextTranscriptResponse, "cache">;
+
+function withCacheMetadata<T extends TranscriptData | TextTranscriptData>(
+  data: T,
+  cache: CacheMetadata
+) {
+  return { ...data, cache };
+}
+
+function unwrapCached<T>(cached: CachedValue<T> | T) {
+  if (isCachedValue<T>(cached)) {
+    return {
+      data: cached.data,
+      metadata: cacheMetadata("hit", cached)
+    };
+  }
+
+  return {
+    data: cached,
+    metadata: cacheMetadata("hit")
+  };
+}
 
 export function OPTIONS() {
   return corsPreflightResponse();
@@ -39,15 +70,21 @@ export const GET = withApiHandler(async (request: NextRequest) => {
   const language = lang ?? "en";
   const cacheKey = formattedTranscriptCacheKey(id, language, format);
   const segmentCacheKey = transcriptCacheKey(id, language);
-  const cached = await readCache<TranscriptResponse | TextTranscriptResponse>(cacheKey);
+  const cached = await readCache<
+    CachedValue<TranscriptData | TextTranscriptData> | TranscriptData | TextTranscriptData
+  >(cacheKey);
 
   if (cached) {
-    return jsonResponse(cached, 200, { "x-cache": "HIT" });
+    const { data, metadata } = unwrapCached(cached);
+    return jsonResponse(withCacheMetadata(data, metadata), 200, { "x-cache": "HIT" });
   }
 
-  const cachedSegments = await readCache<TranscriptResponse>(segmentCacheKey);
-  const transcript = cachedSegments?.transcript ?? (await getTranscript(id, language));
-  const response =
+  const cachedSegments = await readCache<CachedValue<TranscriptData> | TranscriptData>(
+    segmentCacheKey
+  );
+  const unwrappedSegments = cachedSegments ? unwrapCached(cachedSegments) : null;
+  const transcript = unwrappedSegments?.data.transcript ?? (await getTranscript(id, language));
+  const response: TranscriptData | TextTranscriptData =
     format === "text"
       ? {
           success: true,
@@ -63,16 +100,22 @@ export const GET = withApiHandler(async (request: NextRequest) => {
           transcript
         };
 
-  if (!cachedSegments) {
+  if (!unwrappedSegments) {
     await writeTranscriptCache(segmentCacheKey, {
-      success: true,
-      videoId: id,
-      language,
-      transcript
+      ...createCachedValue({
+        success: true,
+        videoId: id,
+        language,
+        transcript
+      })
     });
   }
 
-  await writeTranscriptCache(cacheKey, response);
+  await writeTranscriptCache(cacheKey, createCachedValue(response));
 
-  return jsonResponse(response, 200, { "x-cache": cachedSegments ? "DERIVED" : "MISS" });
+  const metadata = unwrappedSegments?.metadata ?? cacheMetadata("miss");
+
+  return jsonResponse(withCacheMetadata(response, metadata), 200, {
+    "x-cache": unwrappedSegments ? "HIT" : "MISS"
+  });
 });

@@ -1,9 +1,14 @@
 import type { NextRequest } from "next/server";
 
 import {
+  cacheMetadata,
+  createCachedValue,
   formattedTranscriptCacheKey,
+  isCachedValue,
   readCache,
   transcriptCacheKey,
+  type CacheMetadata,
+  type CachedValue,
   writeTranscriptCache
 } from "@/lib/cache/cache";
 import { withApiHandler } from "@/lib/api-handler";
@@ -21,6 +26,7 @@ type BatchTranscriptResult =
       videoId: string;
       language: string;
       transcript: TranscriptItem[];
+      cache?: CacheMetadata;
     }
   | {
       success: true;
@@ -28,6 +34,7 @@ type BatchTranscriptResult =
       language: string;
       format: "text";
       text: string;
+      cache?: CacheMetadata;
     }
   | {
       success: false;
@@ -38,6 +45,41 @@ type BatchTranscriptResult =
         message: string;
       };
     };
+
+type BatchSegmentData = {
+  success: true;
+  videoId: string;
+  language: string;
+  transcript: TranscriptItem[];
+};
+
+type BatchTextData = {
+  success: true;
+  videoId: string;
+  language: string;
+  format: "text";
+  text: string;
+};
+
+type BatchTranscriptData = BatchSegmentData | BatchTextData;
+
+function withCacheMetadata(data: BatchTranscriptData, cache: CacheMetadata): BatchTranscriptResult {
+  return { ...data, cache };
+}
+
+function unwrapCached<T>(cached: CachedValue<T> | T) {
+  if (isCachedValue<T>(cached)) {
+    return {
+      data: cached.data,
+      metadata: cacheMetadata("hit", cached)
+    };
+  }
+
+  return {
+    data: cached,
+    metadata: cacheMetadata("hit")
+  };
+}
 
 export function OPTIONS() {
   return corsPreflightResponse();
@@ -51,18 +93,23 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     body.videos.map(async (videoId): Promise<BatchTranscriptResult> => {
       const cacheKey = formattedTranscriptCacheKey(videoId, language, format);
       const segmentCacheKey = transcriptCacheKey(videoId, language);
-      const cached = await readCache<Extract<BatchTranscriptResult, { success: true }>>(cacheKey);
+      const cached = await readCache<CachedValue<BatchTranscriptData> | BatchTranscriptData>(
+        cacheKey
+      );
 
       if (cached) {
-        return cached;
+        const { data, metadata } = unwrapCached(cached);
+        return withCacheMetadata(data, metadata);
       }
 
       try {
-        const cachedSegments = await readCache<
-          Extract<BatchTranscriptResult, { success: true; transcript: TranscriptItem[] }>
-        >(segmentCacheKey);
-        const transcript = cachedSegments?.transcript ?? (await getTranscript(videoId, language));
-        const result: BatchTranscriptResult =
+        const cachedSegments = await readCache<CachedValue<BatchSegmentData> | BatchSegmentData>(
+          segmentCacheKey
+        );
+        const unwrappedSegments = cachedSegments ? unwrapCached(cachedSegments) : null;
+        const transcript =
+          unwrappedSegments?.data.transcript ?? (await getTranscript(videoId, language));
+        const result: BatchTranscriptData =
           format === "text"
             ? {
                 success: true,
@@ -78,17 +125,19 @@ export const POST = withApiHandler(async (request: NextRequest) => {
                 transcript
               };
 
-        if (!cachedSegments) {
+        if (!unwrappedSegments) {
           await writeTranscriptCache(segmentCacheKey, {
-            success: true,
-            videoId,
-            language,
-            transcript
+            ...createCachedValue({
+              success: true,
+              videoId,
+              language,
+              transcript
+            })
           });
         }
 
-        await writeTranscriptCache(cacheKey, result);
-        return result;
+        await writeTranscriptCache(cacheKey, createCachedValue(result));
+        return withCacheMetadata(result, unwrappedSegments?.metadata ?? cacheMetadata("miss"));
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unable to fetch transcript";
 

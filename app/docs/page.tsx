@@ -143,7 +143,12 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
       "videoId": "dQw4w9WgXcQ",
       "language": "en",
       "format": "text",
-      "text": "Full clean transcript text..."
+      "text": "Full clean transcript text...",
+      "cache": {
+        "status": "miss",
+        "fetchedAt": "2026-08-21T10:00:00.000Z",
+        "ttlSeconds": 86400
+      }
     }
   ]
 }`}
@@ -168,7 +173,12 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
       "offset": 1200,
       "duration": 800
     }
-  ]
+  ],
+  "cache": {
+    "status": "hit",
+    "fetchedAt": "2026-08-21T10:00:00.000Z",
+    "ttlSeconds": 86400
+  }
 }`}
             />
             <EndpointDoc
@@ -186,7 +196,12 @@ x-rapidapi-host: youtube-transcript27.p.rapidapi.com`}</pre>
   "videoId": "dQw4w9WgXcQ",
   "language": "en",
   "format": "text",
-  "text": "Full clean transcript text..."
+  "text": "Full clean transcript text...",
+  "cache": {
+    "status": "hit",
+    "fetchedAt": "2026-08-21T10:00:00.000Z",
+    "ttlSeconds": 86400
+  }
 }`}
             />
             <EndpointDoc
