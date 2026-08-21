@@ -12,7 +12,12 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW: durationSchema.default("60s"),
   TRANSCRIPT_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(86400),
   METADATA_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(21600),
-  NEXT_PUBLIC_API_BASE_URL: z.string().url().default("http://localhost:3000")
+  NEXT_PUBLIC_API_BASE_URL: z.string().url().default("http://localhost:3000"),
+  YOUTUBE_PROXY_ENABLED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
+  YOUTUBE_PROXY_URL: z.string().url().optional().or(z.literal(""))
 });
 
 const parsed = envSchema.safeParse(process.env);

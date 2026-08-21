@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
+import { config } from "@/lib/config";
 import { logger } from "@/lib/logger/logger";
 import type { TranscriptItem } from "@/lib/youtube/transcript";
 
@@ -144,6 +145,10 @@ async function getYtDlpInfo(videoId: string, language: string): Promise<YtDlpInf
 
   if (runtimeCookiesPath) {
     args.push("--cookies", runtimeCookiesPath);
+  }
+
+  if (config.YOUTUBE_PROXY_ENABLED && config.YOUTUBE_PROXY_URL) {
+    args.push("--proxy", config.YOUTUBE_PROXY_URL);
   }
 
   args.push(youtubeUrl(videoId));
